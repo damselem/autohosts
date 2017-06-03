@@ -10,7 +10,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-// Commented regions are not currently used
 var regions = []string{
 	"us-east-2",
 	"us-east-1",

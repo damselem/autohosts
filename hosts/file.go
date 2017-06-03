@@ -2,10 +2,13 @@ package hosts
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"strings"
+	"syscall"
 )
 
 const (
@@ -23,26 +26,27 @@ func NewHostFile(path string) *file {
 	}
 }
 
-func (hf *file) Update(remoteEntries []Entry) error {
+func (hf *file) Update(managedEntries []Entry) error {
 	entries, err := hf.parseHostFile()
 	if err != nil {
 		return err
 	}
+
 	f, err := createTmpHostFile()
 	if err != nil {
 		return err
 	}
 	defer f.Close()
+
 	err = writeLocalEntries(f, entries["local"])
 	if err != nil {
 		return err
 	}
 
 	f.WriteString("\n")
-	writeManagedEntries(f, remoteEntries)
+	writeManagedEntries(f, managedEntries)
 
-	fmt.Println(remoteEntries)
-	// moveAndApplyPermissions(tmpHostFilePath, "/etc/hosts")
+	err = moveAndApplyPermissions(f.Name(), hf.path)
 	return err
 }
 
@@ -58,11 +62,12 @@ func writeManagedEntries(f *os.File, entries []Entry) {
 
 func writeEntries(f *os.File, entries []Entry) error {
 	for _, entry := range entries {
-		_, err := f.WriteString(entry.String())
+		_, err := f.WriteString(fmt.Sprintf("%s\n", entry.String()))
 		if err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
@@ -71,10 +76,12 @@ func createTmpHostFile() (*os.File, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	err = f.Chmod(os.FileMode(0644))
 	if err != nil {
 		return nil, err
 	}
+
 	return f, nil
 }
 
@@ -94,20 +101,16 @@ func (hf *file) parseHostFile() (map[string][]Entry, error) {
 		if blockStarted {
 			if line == endComment {
 				blockStarted = false
-			} else {
-				if line != "" {
-					entry := parseLineEntry(line)
-					managedEntries = append(managedEntries, entry)
-				}
+			} else if line != "" {
+				entry := parseLineEntry(line)
+				managedEntries = append(managedEntries, entry)
 			}
 		} else {
 			if line == startComment {
 				blockStarted = true
-			} else {
-				if line != "" {
-					entry := parseLineEntry(line)
-					localEntries = append(localEntries, entry)
-				}
+			} else if line != "" {
+				entry := parseLineEntry(line)
+				localEntries = append(localEntries, entry)
 			}
 		}
 	}
@@ -121,19 +124,57 @@ func (hf *file) parseHostFile() (map[string][]Entry, error) {
 }
 
 func parseLineEntry(line string) Entry {
+	var address, hostname, comment string
 	var aliases []string
 
-	lineParts := strings.Split(line, "#")
-	fields := strings.Fields(lineParts[0])
-	comment := lineParts[1]
+	line = strings.TrimSpace(line)
 
-	if len(fields) > 2 {
-		aliases = fields[2 : len(fields)-1]
+	lineParts := strings.SplitN(line, "#", 2)
+	entryFields := strings.Fields(lineParts[0])
+
+	if len(lineParts) == 2 {
+		comment = fmt.Sprintf("#%s", lineParts[1])
 	}
+
+	if len(entryFields) > 0 {
+		address = entryFields[0]
+	}
+	if len(entryFields) > 1 {
+		hostname = entryFields[1]
+	}
+	if len(entryFields) > 2 {
+		aliases = entryFields[2:len(entryFields)]
+	}
+
 	return Entry{
-		Address:  fields[0],
-		Hostname: fields[1],
+		Address:  address,
+		Hostname: hostname,
 		Aliases:  aliases,
 		Comment:  comment,
 	}
+}
+
+func moveAndApplyPermissions(tmpHostFilePath, dstHostFilePath string) error {
+	fmt.Printf("Updating %s with new hostnames...\n", dstHostFilePath)
+	runInteractively("sudo", "-s", "mv", tmpHostFilePath, dstHostFilePath)
+
+	fi, err := os.Stat(dstHostFilePath)
+	if err != nil {
+		return errors.New(fmt.Sprintf("%s could not be updated", dstHostFilePath))
+	}
+
+	uid := fi.Sys().(*syscall.Stat_t).Uid
+	gid := fi.Sys().(*syscall.Stat_t).Gid
+
+	return runInteractively("sudo", "-s", "chown", fmt.Sprintf("%d:%d", uid, gid), dstHostFilePath)
+}
+
+func runInteractively(command string, arguments ...string) error {
+	cmd := exec.Command(command, arguments...)
+
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	return cmd.Run()
 }
