@@ -155,9 +155,6 @@ func parseLineEntry(line string) Entry {
 }
 
 func moveAndApplyPermissions(tmpHostFilePath, dstHostFilePath string) error {
-	fmt.Printf("Updating %s with new hostnames...\n", dstHostFilePath)
-	runInteractively("sudo", "-s", "mv", tmpHostFilePath, dstHostFilePath)
-
 	fi, err := os.Stat(dstHostFilePath)
 	if err != nil {
 		return errors.New(fmt.Sprintf("%s could not be updated", dstHostFilePath))
@@ -166,6 +163,7 @@ func moveAndApplyPermissions(tmpHostFilePath, dstHostFilePath string) error {
 	uid := fi.Sys().(*syscall.Stat_t).Uid
 	gid := fi.Sys().(*syscall.Stat_t).Gid
 
+	runInteractively("sudo", "-s", "mv", tmpHostFilePath, dstHostFilePath)
 	return runInteractively("sudo", "-s", "chown", fmt.Sprintf("%d:%d", uid, gid), dstHostFilePath)
 }
 

@@ -16,13 +16,17 @@ func GetRootCmd() *cobra.Command {
 		Use:   "autohosts",
 		Short: "Manage hosts for AWS and GCP instances",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if dstFile != "" {
+				fmt.Printf("Updating %s with new hostnames...\n", dstFile)
+			}
+
 			awsEntries, err := hosts.AWS()
 			if err != nil {
 				log.Println(err)
 			}
 
 			if dstFile != "" {
-				hostFile := hosts.NewHostFile("/etc/hosts")
+				hostFile := hosts.NewHostFile(dstFile)
 				return hostFile.Update(awsEntries)
 			}
 
