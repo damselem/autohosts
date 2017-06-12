@@ -1,6 +1,6 @@
 # autohosts
 
-Use the credentials in `~/.aws/credentials` to pull the hostnames from all
+Uses the credentials in `~/.aws/credentials` to pull the hostnames from all
 instances in AWS and soon, GCP.
 
 ## Installation
