@@ -2,22 +2,40 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "cloud.google.com/go"
+  packages = ["compute/metadata"]
+  revision = "7daafdb2f4a3defdef2154a45709c2126c6f0436"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/alecthomas/template"
+  packages = [".","parse"]
+  revision = "a0175ee3bccc567396460bf5acd36800cb10c49c"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/alecthomas/units"
+  packages = ["."]
+  revision = "2efee857e7cfd4f3d0138cc3cbb1b4966962b93a"
+
+[[projects]]
+  branch = "master"
   name = "github.com/aws/aws-sdk-go"
   packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","private/protocol","private/protocol/ec2query","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/ec2","service/sts"]
-  revision = "e0cdae7a65ba3a5e66a0af747a7b3967ddac099c"
-  version = "v1.8.30"
+  revision = "26d4122e877bd86f43d528ad7fbde237dbbd3fa9"
 
 [[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
-  revision = "36da989cdc560b989d8f195aec46214d33665d20"
-  version = "v1.27.2"
+  revision = "d3de07a94d22b4a0972deb4b96d790c2c0ce8333"
+  version = "v1.28.0"
 
 [[projects]]
   branch = "master"
-  name = "github.com/inconshreveable/mousetrap"
-  packages = ["."]
-  revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
+  name = "github.com/golang/protobuf"
+  packages = ["proto"]
+  revision = "e325f446bebc2998605911c0a2650d9920361d4a"
 
 [[projects]]
   name = "github.com/jmespath/go-jmespath"
@@ -27,19 +45,37 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/spf13/cobra"
-  packages = ["."]
-  revision = "e606913c4ee45fec232e67e70105fb6c866b95d9"
+  name = "golang.org/x/net"
+  packages = ["context","context/ctxhttp"]
+  revision = "ddf80d0970594e2e4cccf5a98861cad3d9eaa4cd"
 
 [[projects]]
   branch = "master"
-  name = "github.com/spf13/pflag"
+  name = "golang.org/x/oauth2"
+  packages = [".","google","internal","jws","jwt"]
+  revision = "f047394b6d14284165300fd82dad67edb3a4d7f6"
+
+[[projects]]
+  branch = "master"
+  name = "google.golang.org/api"
+  packages = ["compute/v1","gensupport","googleapi","googleapi/internal/uritemplates"]
+  revision = "324744a33f1f37e63dd1695cfb3ec9a3e4a1cb05"
+
+[[projects]]
+  name = "google.golang.org/appengine"
+  packages = [".","internal","internal/app_identity","internal/base","internal/datastore","internal/log","internal/modules","internal/remote_api","internal/urlfetch","urlfetch"]
+  revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
+  version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "gopkg.in/alecthomas/kingpin.v2"
   packages = ["."]
-  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
+  revision = "7f0871f2e17818990e4eed73f9b5c2f429501228"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fc8e4b662b24e65673f99ddbdf66557900270803b057646d0efea869f3fe71ac"
+  inputs-digest = "39407c0a6f0f7d54859d39ae10db6564eed471805a5d2b3cc8c71bef604bc6db"
   solver-name = "gps-cdcl"
   solver-version = 1

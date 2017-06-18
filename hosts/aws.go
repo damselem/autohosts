@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-var regions = []string{
+var awsRegions = []string{
 	"us-east-2",
 	"us-east-1",
 	"us-west-1",
@@ -43,7 +43,7 @@ func AWS() ([]Entry, error) {
 	var entries []Entry
 	var instErrs []error
 
-	for _, region := range regions {
+	for _, region := range awsRegions {
 		wg.Add(1)
 		go func(region string) {
 			var regionEntries []Entry
@@ -67,7 +67,7 @@ func AWS() ([]Entry, error) {
 				if ip != nil && name != "" && !isEmr && !isAutoscale {
 					regionEntries = append(regionEntries, Entry{
 						Address:  *ip,
-						Comment:  fmt.Sprintf("# %s", region),
+						Comment:  fmt.Sprintf("# AWS - %s", region),
 						Hostname: name,
 					})
 				}

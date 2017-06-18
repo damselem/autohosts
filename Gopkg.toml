@@ -65,3 +65,35 @@
 # source = "https://github.com/myfork/package.git"
 
 
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/aws/aws-sdk-go"
+
+[[constraint]]
+  name = "github.com/go-ini/ini"
+  version = "1.28.0"
+
+[[constraint]]
+  name = "github.com/jmespath/go-jmespath"
+  version = "0.2.2"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/net"
+
+[[constraint]]
+  branch = "master"
+  name = "golang.org/x/oauth2"
+
+[[constraint]]
+  branch = "master"
+  name = "google.golang.org/api"
+
+[[constraint]]
+  name = "google.golang.org/appengine"
+  version = "1.0.0"
+
+[[constraint]]
+  branch = "master"
+  name = "gopkg.in/alecthomas/kingpin.v2"
