@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"sync"
 
 	"github.com/damselem/autohosts/cmd"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
@@ -14,10 +13,10 @@ func main() {
 	dstFile := app.Flag("output", "file to update with hosts").Short('o').String()
 
 	all := app.Command("all", "fetch instance hostnames from AWS and GCP")
-	allGcpProjects := all.Flag("projects", "list of GCP project ids to fetch hostnames from").Strings()
+	allGcpProjects := all.Flag("gcp-project", "GCP project ID to fetch hostnames from").Strings()
 
 	gcp := app.Command("gcp", "fetch instance hostnames from GCP")
-	gcpProjects := gcp.Flag("projects", "list of project ids to fetch hostnames from").Strings()
+	gcpProjects := gcp.Flag("project", "project id to fetch hostnames from").Strings()
 
 	app.Command("aws", "fetch instance hostnames from AWS")
 
@@ -28,37 +27,7 @@ func main() {
 	case "gcp":
 		err = cmd.RunGCPCommand(*dstFile, *gcpProjects)
 	case "all":
-		var wg sync.WaitGroup
-		errsCh := make(chan error)
-
-		wg.Add(1)
-		go func(dstFile string) {
-			if err := cmd.RunAWSCommand(dstFile); err != nil {
-				errsCh <- err
-				return
-			}
-
-			wg.Done()
-		}(*dstFile)
-
-		wg.Add(1)
-		go func(dstFile string, projects []string) {
-			if err := cmd.RunGCPCommand(dstFile, projects); err != nil {
-				errsCh <- err
-				return
-			}
-
-			wg.Done()
-		}(*dstFile, *allGcpProjects)
-
-		go func() {
-			for cloudErr := range errsCh {
-				err = cloudErr
-				wg.Done()
-			}
-		}()
-
-		wg.Wait()
+		err = cmd.RunAllCommand(*dstFile, *allGcpProjects)
 	}
 
 	if err != nil {
