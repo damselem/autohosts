@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"log"
 
+	"net/http"
+	"sync"
+
 	"github.com/pkg/errors"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/cloudresourcemanager/v1"
 	"google.golang.org/api/compute/v1"
-	"net/http"
-	"sync"
 )
 
 var gcpRegions []string = []string{
@@ -25,9 +26,6 @@ func GCP(projectsWhitelist []string) ([]Entry, error) {
 	entriesCh := make(chan []Entry)
 	errCh := make(chan error)
 
-	var entries []Entry
-	var instErrs []error
-
 	ctx := context.Background()
 	c, err := google.DefaultClient(ctx, compute.CloudPlatformScope, cloudresourcemanager.CloudPlatformScope)
 	if err != nil {
@@ -40,41 +38,51 @@ func GCP(projectsWhitelist []string) ([]Entry, error) {
 	}
 
 	for _, project := range projects {
-		wg.Add(1)
+		ctx := context.Background()
 
-		go func(project cloudresourcemanager.Project) {
-			ctx := context.Background()
+		c, err := google.DefaultClient(ctx, compute.CloudPlatformScope, cloudresourcemanager.CloudPlatformScope)
+		if err != nil {
+			errCh <- errors.Wrap(err, "could not initialize GCP client")
 
-			c, err := google.DefaultClient(ctx, compute.CloudPlatformScope, cloudresourcemanager.CloudPlatformScope)
-			if err != nil {
-				errCh <- errors.Wrap(err, "could not initialize GCP client")
-				return
-			}
+			continue
+		}
 
-			zones, err := getAllZonesForProject(c, ctx, project)
-			if err != nil {
-				msg := fmt.Sprintf("could not get the list of GCP zones for project %s", project.ProjectId)
-				errCh <- errors.Wrap(err, msg)
-				return
-			}
+		zones, err := getAllZonesForProject(c, ctx, project)
+		if err != nil {
+			msg := fmt.Sprintf("could not get the list of GCP zones for project %s", project.ProjectId)
+			errCh <- errors.Wrap(err, msg)
 
-			fmt.Println(zones)
+			continue
+		}
 
-			for _, zone := range zones {
+		for _, zone := range zones {
+			wg.Add(1)
+
+			go func(project cloudresourcemanager.Project, zone compute.Zone) {
+				var entries []Entry
+				ctx := context.Background()
+
+				c, err := google.DefaultClient(ctx, compute.CloudPlatformScope, cloudresourcemanager.CloudPlatformScope)
+				if err != nil {
+					errCh <- errors.Wrap(err, "could not initialize GCP client")
+					return
+				}
+
 				instances, _ := getAllInstancesForProject(c, ctx, project, zone.Name)
 				for _, instance := range instances {
 					entries = append(entries, Entry{
 						Address:  instance.NetworkInterfaces[0].AccessConfigs[0].NatIP,
-						Comment:  fmt.Sprintf("# GCP - %s", zone),
+						Comment:  fmt.Sprintf("# GCP - %s", zone.Name),
 						Hostname: instance.Name,
 					})
 				}
-			}
 
-			entriesCh <- entries
-		}(project)
+				entriesCh <- entries
+			}(project, zone)
+		}
 	}
 
+	var entries []Entry
 	go func() {
 		for projectEntries := range entriesCh {
 			entries = append(entries, projectEntries...)
@@ -82,6 +90,7 @@ func GCP(projectsWhitelist []string) ([]Entry, error) {
 		}
 	}()
 
+	var instErrs []error
 	go func() {
 		for projectErr := range errCh {
 			instErrs = append(instErrs, projectErr)

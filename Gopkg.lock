@@ -28,8 +28,8 @@
 [[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
-  revision = "d3de07a94d22b4a0972deb4b96d790c2c0ce8333"
-  version = "v1.28.0"
+  revision = "36da989cdc560b989d8f195aec46214d33665d20"
+  version = "v1.27.2"
 
 [[projects]]
   branch = "master"
@@ -42,6 +42,12 @@
   packages = ["."]
   revision = "3433f3ea46d9f8019119e7dd41274e112a2359a9"
   version = "0.2.2"
+
+[[projects]]
+  name = "github.com/pkg/errors"
+  packages = ["."]
+  revision = "645ef00459ed84a119197bfb8d8205042c6df63d"
+  version = "v0.8.0"
 
 [[projects]]
   branch = "master"
@@ -58,7 +64,7 @@
 [[projects]]
   branch = "master"
   name = "google.golang.org/api"
-  packages = ["compute/v1","gensupport","googleapi","googleapi/internal/uritemplates"]
+  packages = ["cloudresourcemanager/v1","compute/v1","gensupport","googleapi","googleapi/internal/uritemplates"]
   revision = "324744a33f1f37e63dd1695cfb3ec9a3e4a1cb05"
 
 [[projects]]
@@ -76,6 +82,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "39407c0a6f0f7d54859d39ae10db6564eed471805a5d2b3cc8c71bef604bc6db"
+  inputs-digest = "dfe7b9a34be67af178a97157a0651f72399249dec397abd00268d59506f2d801"
   solver-name = "gps-cdcl"
   solver-version = 1
