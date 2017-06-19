@@ -1,7 +1,7 @@
 # autohosts
 
-Uses the credentials in `~/.aws/credentials` to pull the hostnames from all
-instances in AWS and soon, GCP.
+Uses the credentials in `~/.aws/credentials` and `~/.config/glocud` to pull the
+hostnames from all instances in AWS and GCP.
 
 ## Installation
 
@@ -12,10 +12,10 @@ You can download a binary for your platform from the [Releases](https://github.c
 Prints hostnames to `STDOUT`:
 
 ```
-autohosts
+autohosts all
 ```
 
 Updates `/etc/hosts` with hostnames:
 ```
-autohosts -o /etc/hosts
+autohosts aws -o /etc/hosts
 ```
