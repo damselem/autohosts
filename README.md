@@ -1,6 +1,6 @@
 # autohosts
 
-Uses the credentials in `~/.aws/credentials` and `~/.config/glocud` to pull the
+Uses the credentials in `~/.aws/credentials` and `~/.config/gcloud` to pull the
 hostnames from all instances in AWS and GCP.
 
 ## Installation
