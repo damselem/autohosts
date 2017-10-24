@@ -7,7 +7,8 @@ import (
 	"github.com/damselem/autohosts/hosts"
 )
 
-func RunAllCommand(dstFile string, projects []string) error {
+// RunAllCommand prints all hosts form AWS and GCP
+func RunAllCommand(dstFile string, projects []string, withAwsEmr, withAwsAutoscaled bool) error {
 	var wg sync.WaitGroup
 
 	entriesCh := make(chan []hosts.Entry)
@@ -19,7 +20,7 @@ func RunAllCommand(dstFile string, projects []string) error {
 
 	wg.Add(1)
 	go func() {
-		entries, err := hosts.AWS()
+		entries, err := hosts.AWS(withAwsEmr, withAwsAutoscaled)
 		if err != nil {
 			errsCh <- err
 			return

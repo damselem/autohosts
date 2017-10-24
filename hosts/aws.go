@@ -34,7 +34,7 @@ var autoscaleGroups = struct {
 
 // AWS returns entries for each EC2 instance in AWS account
 // By default it uses the credentials stored in ~/.aws/credentials
-func AWS() ([]Entry, error) {
+func AWS(withEmr, withAutoscale bool) ([]Entry, error) {
 	var wg sync.WaitGroup
 
 	entriesCh := make(chan []Entry)
@@ -64,7 +64,11 @@ func AWS() ([]Entry, error) {
 				_, isEmr := tags["aws:elasticmapreduce:instance-group-role"]
 				_, isAutoscale := tags["aws:autoscaling:groupName"]
 
-				if ip != nil && name != "" && !isEmr && !isAutoscale {
+				if (isEmr && !withEmr) || (isAutoscale && !withAutoscale) {
+					continue
+				}
+
+				if ip != nil && name != "" {
 					regionEntries = append(regionEntries, Entry{
 						Address:  *ip,
 						Comment:  fmt.Sprintf("# AWS - %s", region),

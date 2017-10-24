@@ -6,12 +6,13 @@ import (
 	"github.com/damselem/autohosts/hosts"
 )
 
-func RunAWSCommand(dstFile string) error {
+// RunAWSCommand prints hosts from AWS
+func RunAWSCommand(dstFile string, withEmr, withAutoscale bool) error {
 	if dstFile != "" {
 		fmt.Printf("Updating %s with new hostnames from AWS...\n", dstFile)
 	}
 
-	entries, err := hosts.AWS()
+	entries, err := hosts.AWS(withEmr, withAutoscale)
 	if err != nil {
 		return err
 	}
